@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009"
+			   xmlns:s="library://ns.adobe.com/flex/spark"
+			   xmlns:mx="library://ns.adobe.com/flex/mx"
+			   minWidth="955" minHeight="600" backgroundColor="#FFFFFF"
+			   creationComplete="application_creationCompleteHandler(event)">
+	<s:layout>
+		<s:VerticalLayout horizontalAlign="center"/>
+	</s:layout>
+	<fx:Metadata>
+		// Strings resource file
+		[ResourceBundle("resources")]
+	</fx:Metadata> 
+	<fx:Style source="resources/css/styles.css.css"/>
+
+	<fx:Script>
+		<![CDATA[
+			import flash.globalization.CurrencyFormatter;
+			import flash.globalization.DateTimeFormatter;
+			import flash.globalization.LocaleID;
+			
+			import models.Wishlist;
+			
+			import mx.collections.ArrayCollection;
+			import mx.events.FlexEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			/* Initially set the preferred locale to use the user's default linguistic preferences, as specified in the
+			user's operating system settings. For example, such preferences are typically set using the "Control Panel"
+			for Windows, or the "System Preferences" in Mac OS X.
+			*/
+			[Bindable]
+			protected var preferredLocale: String = LocaleID.DEFAULT;
+			
+			/* Create a locale ID class.
+			
+			The LocaleID class provides methods for parsing and using locale ID names. This class supports locale ID
+			names that use the syntax defined by the Unicode Technical Standard #35 (http://unicode.org/reports/tr35/).
+			*/
+			[Bindable]
+			protected var localeId:LocaleID;
+			
+			/* The DateTimeFormatter class provides locale-sensitive formatting for Date objects and access to localized
+			date field names. The methods of this class use functions and settings provided by the operating system.
+			There are two ways to select a date time format: using a predefined pattern or a custom pattern. For most
+			applications the predefined styles specified by the DateTimeStyle constants (LONG, MEDIUM, NONE, or SHORT
+			should be used. These constants specify the default patterns for the requested locale or the default patterns
+			based on the user's operating system settings.
+			
+			When an instance of this class is created, if the requested locale is supported by the operating system then
+			the properties of the instance are set according to the conventions and defaults of the requested locale and
+			the constructor's dateStyle and timeStyle parameters. If the requested locale is not available, then the
+			properties are set according to a fallback or default system locale, which can be retrieved using the
+			actualLocaleIDName property.
+			
+			This class contains additional methods to get localized strings for month names and weekday names, and to
+			retrieve the first day of the week that can be used in a calendar picker or other similar application.
+			
+			Due to the use of the user's settings, the use of formatting patterns provided by the operating system,
+			and the use of a fallback locale when a requested locale is not supported, different users can see different
+			formatting results even when using the same locale ID.
+			*/
+			[Bindable]
+			protected var dateTimeFormatter: DateTimeFormatter;
+			
+			/* The CurrencyFormatter class provides locale-sensitive formatting and parsing of currency values.
+			
+			The CurrencyFormatter class uses the data and functionality provided by the operating system and is designed
+			to format currency values according to the conventions of a specific locale and type of currency. The position
+			of the currency symbol, the negative symbol, the decimal separator, the grouping separator, the grouping
+			pattern decimal separator, and other elements can vary depending on the locale.
+			
+			If the operating system supports the requested locale, the properties and currency type are set according to the
+			conventions and defaults of the requested locale. If the requested locale is not available, then the properties
+			are set according to a fallback or default system locale, which can be retrieved using the actualLocaleIDName
+			property.
+			
+			Due to the use of the user's settings, the use of formatting patterns provided by the operating system, and the
+			use of a fallback locale when a requested locale is not supported, different users can see different formatting
+			results, even when using the same locale ID.
+			*/
+			[Bindable]
+			protected var currencyFormatter: CurrencyFormatter;
+			
+			
+			//-----------------------------------------------------------------
+			protected function application_creationCompleteHandler(event:FlexEvent):void
+			{
+				// Create a new date/time formatter object based on the preferred locale.
+				dateTimeFormatter = new DateTimeFormatter(preferredLocale);
+				
+				// Create c currency formatter object based on the preferred locale.
+				currencyFormatter = new CurrencyFormatter(preferredLocale);
+				
+				// Create a new locale ID object based on the locale name from the date time formatter
+				localeId = new LocaleID(dateTimeFormatter.actualLocaleIDName);
+				//FIX			resourceManager.localeChain = [normalizeLocale(localeId.name), "en_US"]; // en_US is a fallback locale here if lang is not available
+		
+				getAllWishlists.send();
+			}
+			
+			protected function getAllWishlists_resultHandler(event:ResultEvent):void
+			{
+				var acWishlists: ArrayCollection = new ArrayCollection();
+				var wishlists: Array = JSON.parse(event.result.toString()) as Array;
+				for (var index:Object in wishlists) {
+					var json: Object = wishlists[index];
+					var wishlistTile: WishlistTile = new WishlistTile();
+					wishlistTile.wishlist = new Wishlist(json);
+					wishlistArea.addElement(wishlistTile);
+				}			
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<s:HTTPService id="getAllWishlists" url="http://localhost/wishlists"
+					   useProxy="false" method="GET" resultFormat="e4x"
+					   result="getAllWishlists_resultHandler(event)">
+		</s:HTTPService> 
+	</fx:Declarations>
+	<s:HGroup width="800" height="200" paddingBottom="20" paddingLeft="20" paddingRight="20"
+			  paddingTop="20" verticalAlign="middle">
+		<s:Label color="#FFEE44" fontSize="60"
+				 text="{resourceManager.getString('resources', 'appTitle')}"/>
+		<s:Spacer width="50"/>
+		<s:Image width="139" height="150" source="resources/images/coins.png"/>
+	</s:HGroup>
+	<s:VGroup id="wishlistArea" width="800">
+	</s:VGroup>
+</s:Application>
