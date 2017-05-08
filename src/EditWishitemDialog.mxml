@@ -23,7 +23,7 @@
 			
 			protected function btnSave_clickHandler(event:MouseEvent):void
 			{
-				saveWishitem.url="http://localhost/wishlists/" + wishlistId + "/wishitems/" + wishitemId;
+				saveWishitem.url="http://peb.codemonkey42.com/wishlists/" + wishlistId + "/wishitems/" + wishitemId;
 				saveWishitem.send();
 			}
 			

@@ -38,7 +38,7 @@
 			
 			protected function btnSave_clickHandler(event:MouseEvent):void
 			{
-				editWishlist.url="http://localhost/wishlists/" + oldWishlist.id;
+				editWishlist.url="http://peb.codemonkey42.com/wishlists/" + oldWishlist.id;
 				editWishlist.send();
 			}
 			
@@ -89,7 +89,7 @@
 			</mx:request>         
 		</s:HTTPService> 
 	</fx:Declarations>
-	<s:Form id="form" width="600">
+	<s:Form id="form" width="700">
 		<!-- Reduce the gap between the form items -->
 		<s:layout>
 			<s:FormLayout gap="-5"/>

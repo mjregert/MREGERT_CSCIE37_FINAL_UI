@@ -160,7 +160,7 @@
 		]]>
 	</fx:Script>
 	<fx:Declarations>
-		<s:HTTPService id="getAllWishlists" url="http://localhost/wishlists"
+		<s:HTTPService id="getAllWishlists" url="http://peb.codemonkey42.com/wishlists"
 					   useProxy="false" method="GET" resultFormat="e4x"
 					   result="getAllWishlists_resultHandler(event)">
 		</s:HTTPService> 

@@ -69,7 +69,7 @@
 		]]>
 	</fx:Script>
 	<fx:Declarations>
-		<s:HTTPService id="saveWishlist" url="http://localhost/wishlists"
+		<s:HTTPService id="saveWishlist" url="http://peb.codemonkey42.com/wishlists"
 					   useProxy="false" method="POST" resultFormat="e4x"
 					   result="saveWishlist_resultHandler(event)"
 					   fault="saveWishlist_faultHandler(event)">
@@ -83,7 +83,7 @@
 			</mx:request>         
 		</s:HTTPService> 
 	</fx:Declarations>
-	<s:Form id="form" width="600">
+	<s:Form id="form" width="700">
 		<!-- Reduce the gap between the form items -->
 		<s:layout>
 			<s:FormLayout gap="-5"/>
