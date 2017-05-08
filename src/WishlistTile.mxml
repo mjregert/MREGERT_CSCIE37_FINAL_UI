@@ -7,15 +7,35 @@
 		<s:VerticalLayout horizontalAlign="center" paddingBottom="10" paddingLeft="10"
 						  paddingRight="10" paddingTop="10"/>
 	</s:layout>
+	<fx:Metadata>
+		// Strings resource file
+		[ResourceBundle("resources")]
+	</fx:Metadata> 
 	<fx:Declarations>
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
 	</fx:Declarations>
 	<fx:Script>
 		<![CDATA[
 			import models.Wishlist;
+			
+			import mx.core.FlexGlobals;
+			import mx.managers.PopUpManager;
 
 			[Bindable]
 			public var wishlist: Wishlist;
+			
+			private function formatCost(item:Object,column:GridColumn):String
+			{
+				return item.costAsString;
+			}
+			
+			protected function btnEditWishlist_clickHandler(event:MouseEvent):void
+			{
+				var editWishlistDialog: EditWishlistDialog = new EditWishlistDialog();
+				editWishlistDialog.oldWishlist = wishlist;
+				PopUpManager.addPopUp(editWishlistDialog, this, true);
+				PopUpManager.centerPopUp(editWishlistDialog);
+			}
 		]]>
 	</fx:Script>
 	<s:BorderContainer width="100%" cornerRadius="5" dropShadowVisible="true">
@@ -23,16 +43,61 @@
 			<s:VerticalLayout paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10"/>
 		</s:layout>
 		<s:HGroup width="100%" verticalAlign="middle">
-			<s:Label id="wishlistName" fontSize="20" text="{wishlist.name}"/>
+			<s:Label id="wishlistName" fontSize="20" fontWeight="bold" text="{wishlist.name}"/>
+			<s:Button id="btnEditWishlist" label="{resourceManager.getString('resources', 'edit')}" click="btnEditWishlist_clickHandler(event)"/>
+
 			<s:Spacer width="100%"/>
-			<s:Label id="wishlistBuyDate" fontSize="20" fontStyle="normal" text="{wishlist.buyDate}"/>
+			<s:Label fontSize="16" text="{resourceManager.getString('resources', 'buyDate')}"/>
+			<s:Label id="wishlistBuyDate" fontSize="16" fontStyle="normal" text="{wishlist.buyDateAsLongString}"/>
 		</s:HGroup>
 		<s:HGroup width="100%" verticalAlign="middle">
-			<s:Label id="wishlistSaving" fontSize="20" text="{wishlist.saving}"/>
+			<s:Label fontSize="16" text="{resourceManager.getString('resources', 'saving')}"/>
+			<s:Label id="wishlistSaving" fontSize="16" text="{wishlist.savingAsString}"/>
 			<s:Spacer width="100%"/>
-			<s:Label id="wishlistTotal" fontSize="20" text="{wishlist.total}"/>
+			<s:Label fontSize="16" text="{resourceManager.getString('resources', 'total')}"/>
+			<s:Label id="wishlistTotal" fontSize="16" text="{wishlist.totalAsString}"/>
 		</s:HGroup>
 		<mx:HRule width="100%"/>
-		<s:Label id="wishlistDescription" text="{wishlist.description}" width="100%"/>
+		<s:Label id="wishlistDescription" width="100%" fontSize="16" text="{wishlist.description}"/>
+		
+		
+		<s:DataGrid id="wishitemsGrid" width="100%"
+					dataProvider="{wishlist.wishitems}">
+			<s:columns>
+				<s:ArrayList>
+					<s:GridColumn dataField="name" headerText="Name"/>
+					<s:GridColumn dataField="cost" headerText="{resourceManager.getString('resources', 'itemCost')}"
+								  labelFunction="formatCost"/>
+					
+					<!--s:GridColumn dataField="">
+						<s:itemRenderer>
+							<fx:Component>
+								<mx:VBox>
+									
+									<fx:Script>
+										<![CDATA[
+											import mx.managers.PopUpManager;
+											protected function btnEdit_clickHandler(event:MouseEvent):void
+											{
+												var editWishitemDialog: EditWishitemDialog = new EditWishitemDialog();
+												editWishitemDialog.wishlistId;
+												editWishitemDialog.wishitemId;
+												PopUpManager.addPopUp(editWishitemDialog, this, true);
+												PopUpManager.centerPopUp(editWishitemDialog);
+											}
+										]]>
+									</fx:Script>
+									
+									<mx:Button id="btnEdit" label="{resourceManager.getString('resources', 'edit')}"
+											   click="btnEdit_clickHandler(event)"/>
+								</mx:VBox>
+							</fx:Component>
+						</s:itemRenderer>
+					</s:GridColumn-->
+				</s:ArrayList>
+			</s:columns>
+		</s:DataGrid>
+
+		
 	</s:BorderContainer>
 </s:Group>

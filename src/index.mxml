@@ -9,11 +9,12 @@
 		[ResourceBundle("resources")]
 	</fx:Metadata> 
 	<fx:Style source="resources/css/styles.css.css"/>
-
+	
 	<fx:Script>
 		<![CDATA[
 			import flash.globalization.CurrencyFormatter;
 			import flash.globalization.DateTimeFormatter;
+			import flash.globalization.DateTimeStyle;
 			import flash.globalization.LocaleID;
 			
 			import models.Wishlist;
@@ -28,7 +29,10 @@
 			for Windows, or the "System Preferences" in Mac OS X.
 			*/
 			[Bindable]
-			protected var preferredLocale: String = "en_UK";//LocaleID.DEFAULT;
+			public var preferredLocale: String = "en_US";//LocaleID.DEFAULT;
+			
+			[Bindable]
+			public var localeIndex:Number = 0;
 			
 			/* Create a locale ID class.
 			
@@ -59,8 +63,11 @@
 			formatting results even when using the same locale ID.
 			*/
 			[Bindable]
-			public var dateTimeFormatter: DateTimeFormatter;
-			
+			public var dtLongFormatter: DateTimeFormatter;
+
+			[Bindable]
+			public var dtShortFormatter: DateTimeFormatter;
+
 			/* The CurrencyFormatter class provides locale-sensitive formatting and parsing of currency values.
 			
 			The CurrencyFormatter class uses the data and functionality provided by the operating system and is designed
@@ -80,32 +87,44 @@
 			[Bindable]
 			public var currencyFormatter: CurrencyFormatter;
 			
+			[Bindable]
+			public var acWishlists: ArrayCollection;
+			
+			[Bindalbe]
+			public var selectedWishlist: Wishlist;
 			
 			//-----------------------------------------------------------------
-			protected function application_creationCompleteHandler(event:FlexEvent):void
+			public function application_creationCompleteHandler(event:FlexEvent):void
 			{
 				// Create a new date/time formatter object based on the preferred locale.
-				dateTimeFormatter = new DateTimeFormatter(preferredLocale);
+				dtLongFormatter = new DateTimeFormatter(preferredLocale, DateTimeStyle.LONG, DateTimeStyle.NONE);
+				dtShortFormatter = new DateTimeFormatter(preferredLocale, DateTimeStyle.SHORT, DateTimeStyle.NONE);
 				
 				// Create c currency formatter object based on the preferred locale.
 				currencyFormatter = new CurrencyFormatter(preferredLocale);
 				
 				// Create a new locale ID object based on the locale name from the date time formatter
-				localeId = new LocaleID(dateTimeFormatter.actualLocaleIDName);
-				//FIX			resourceManager.localeChain = [normalizeLocale(localeId.name), "en_US"]; // en_US is a fallback locale here if lang is not available
+				localeId = new LocaleID(dtLongFormatter.actualLocaleIDName);
 		
+				// Set the language we'll load string from
+				resourceManager.localeChain = [preferredLocale, "en_US"]; // en_US is a fallback locale here if language is not available
+				
 				getAllWishlists.send();
 			}
 			
 			protected function getAllWishlists_resultHandler(event:ResultEvent):void
 			{
-				var acWishlists: ArrayCollection = new ArrayCollection();
 				var wishlists: Array = JSON.parse(event.result.toString()) as Array;
-				for (var index:Object in wishlists) {
-					var json: Object = wishlists[index];
+				renderWishlistTiles(wishlists);
+			}
+			
+			protected function renderWishlistTiles(wishlists: Array):void {
+				this.acWishlists = new ArrayCollection();
+				for each (var wishlistAsJson:Object in wishlists) {
 					var wishlistTile: WishlistTile = new WishlistTile();
-					wishlistTile.wishlist = new Wishlist(json);
-					wishlistArea.addElement(wishlistTile);
+					var wishlist: Wishlist = new Wishlist(wishlistAsJson); 
+					wishlistTile.wishlist = wishlist;
+					acWishlists.addItem(wishlist);
 				}			
 			}
 			
@@ -116,6 +135,28 @@
 				PopUpManager.centerPopUp(createWishlistDialog);
 			}
 			
+			protected function wishitemsGrid_clickHandler(event:MouseEvent):void
+			{
+				details.removeAllElements();
+				var index:Number = event.currentTarget.selectedIndex;
+				var wishlistTile: WishlistTile = new WishlistTile();
+				selectedWishlist = acWishlists.getItemAt(index) as Wishlist;
+				wishlistTile.wishlist = selectedWishlist;
+				details.addElement(wishlistTile);
+			}
+			
+			private function formatBuyDate(item:Object,column:GridColumn):String
+			{
+				return item.buyDateAsShortString;
+			}
+			
+			protected function btnSettings_clickHandler(event:MouseEvent):void
+			{
+				var settingsDialog: SettingsDialog = new SettingsDialog();
+				settingsDialog.localeIndex = localeIndex;
+				PopUpManager.addPopUp(settingsDialog, this, true);
+				PopUpManager.centerPopUp(settingsDialog);
+			}
 		]]>
 	</fx:Script>
 	<fx:Declarations>
@@ -129,7 +170,7 @@
 			<s:layout>
 				<s:VerticalLayout horizontalAlign="center"/>
 			</s:layout>
-			<s:VGroup width="600" horizontalAlign="center">
+			<s:VGroup width="100%" horizontalAlign="center">
 				<s:HGroup width="100%" height="200" paddingBottom="20" paddingLeft="20" paddingRight="20"
 						  paddingTop="20" verticalAlign="middle">
 					<s:Group>
@@ -140,21 +181,40 @@
 					</s:Group>
 					<s:Spacer width="50"/>
 					<s:Image width="139" height="150" source="resources/images/coins.png"/>
-				</s:HGroup>
-				
-				<s:HGroup width="100%" paddingBottom="20" paddingLeft="20" paddingRight="20" paddingTop="20"
-						  verticalAlign="middle">
-					<s:Group>
-						<s:Label fontSize="36" x="2" y="2" text="{resourceManager.getString('resources', 'wishlistTitle')}"/>
-						<s:Label fontSize="36" text="{resourceManager.getString('resources', 'wishlistTitle')}" color="#E4B204"/>
-					</s:Group>
 					<s:Spacer width="100%"/>
-					<s:Button id="btnNewWishlist" label="NEW" click="btnNewWishlist_clickHandler(event)"/>
+					<s:Image id="btnSettings" source="resources/images/settings.png" width="50" height="50" click="btnSettings_clickHandler(event)"/>
 				</s:HGroup>
-				
-				
-				<s:VGroup id="wishlistArea" width="100%" gap="3" horizontalAlign="center">
-				</s:VGroup>
+				<s:HGroup width="100%" paddingBottom="20" paddingLeft="20" paddingRight="20" paddingTop="20"
+						  verticalAlign="top">
+					<!-- MASTER VIEW -->
+					<s:VGroup id="master" width="30%" gap="3" horizontalAlign="center">
+						<s:Group width="100%">
+							<s:BorderContainer width="100%" cornerRadius="5" dropShadowVisible="true">
+								<s:layout>
+									<s:VerticalLayout paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10"/>
+								</s:layout>
+								<s:HGroup width="100%" verticalAlign="middle">
+									<s:Label fontSize="20" fontWeight="bold" text="{resourceManager.getString('resources', 'wishlistTitle')}"/>
+									<s:Button id="btnNewWishlist" label="{resourceManager.getString('resources', 'new')}" click="btnNewWishlist_clickHandler(event)"/>
+								</s:HGroup>
+								<s:DataGrid id="wishitemsGrid" width="100%"
+											dataProvider="{acWishlists}"
+											click="wishitemsGrid_clickHandler(event)">
+									<s:columns>
+										<s:ArrayList>
+											<s:GridColumn dataField="name" headerText="{resourceManager.getString('resources', 'wishlistName')}"/>
+											<s:GridColumn dataField="buyDate" headerText="{resourceManager.getString('resources', 'buyDate')}"
+														  labelFunction="formatBuyDate"/>
+										</s:ArrayList>
+									</s:columns>
+								</s:DataGrid>
+							</s:BorderContainer>
+						</s:Group>
+					</s:VGroup>
+					<!-- DETAILS VIEW -->
+					<s:VGroup id="details" width="70%" horizontalAlign="center">
+					</s:VGroup>
+				</s:HGroup>
 			</s:VGroup>
 		</s:Group>
 	</s:Scroller>

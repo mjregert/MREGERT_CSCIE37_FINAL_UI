@@ -17,23 +17,14 @@
 			import mx.rpc.events.ResultEvent;
 
 			[Bindable]
-			protected var locale: String;
-			
+			public var wishlistId: Number;
 			[Bindable]
-			protected var dayNames: Array;
-			
-			[Bindable]
-			protected var monthNames: Array;
-			
-			[Bindable]
-			protected var firstDayOfWeek: int;
-			
-			[Bindable]
-			protected var currencySymbol: String;
+			public var wishitemId: Number;
 			
 			protected function btnSave_clickHandler(event:MouseEvent):void
 			{
-				saveWishlist.send();
+				saveWishitem.url="http://localhost/wishlists/" + wishlistId + "/wishitems/" + wishitemId;
+				saveWishitem.send();
 			}
 			
 			protected function btnCancel_clickHandler(event:MouseEvent):void
@@ -59,27 +50,18 @@
 			
 			protected function titlewindow_creationCompleteHandler(event:FlexEvent):void
 			{
-				locale = FlexGlobals.topLevelApplication.localeId.name;
-				dayNames = Utilities.vectorToArray(FlexGlobals.topLevelApplication.dtLongFormatter.getWeekdayNames(DateTimeNameStyle.LONG_ABBREVIATION));
-				monthNames = Utilities.vectorToArray(FlexGlobals.topLevelApplication.dtLongFormatter.getMonthNames(DateTimeNameStyle.LONG_ABBREVIATION));
-				firstDayOfWeek = FlexGlobals.topLevelApplication.dtLongFormatter.getFirstWeekday();
-				currencySymbol = FlexGlobals.topLevelApplication.currencyFormatter.currencySymbol;
 			}
 			
 		]]>
 	</fx:Script>
 	<fx:Declarations>
-		<s:HTTPService id="saveWishlist" url="http://localhost/wishlists"
-					   useProxy="false" method="POST" resultFormat="e4x"
+		<s:HTTPService id="saveWishitem"
+					   useProxy="false" method="PUT" resultFormat="e4x"
 					   result="saveWishlist_resultHandler(event)"
 					   fault="saveWishlist_faultHandler(event)">
 			<mx:request xmlns="">
-				<locale>{locale}</locale>
-				<name>{wishlistName.text}</name> 
-				<description>{wishlistDescription.text}</description>
-				<total>45678</total>
-				<saving>{wishlistSaving.text}</saving>
-				<buyDate>{Utilities.dateToString(wishlistBuyDate.selectedDate)}</buyDate>
+				<name>{wishitemName.text}</name> 
+				<cost>{wishitemCost.text}</cost>
 			</mx:request>         
 		</s:HTTPService> 
 	</fx:Declarations>
@@ -88,27 +70,13 @@
 		<s:layout>
 			<s:FormLayout gap="-5"/>
 		</s:layout>  
-		<s:FormHeading label="{resourceManager.getString('resources', 'newWishlist')}"/>
-		<s:FormItem width="100%" label="{resourceManager.getString('resources','wishlistName')}">
-			<s:TextInput id="wishlistName" width="100%"/>
+		<s:FormHeading label="{resourceManager.getString('resources', 'editWishitem')}"/>
+		<s:FormItem width="100%" label="{resourceManager.getString('resources','itemName')}">
+			<s:TextInput id="wishitemName" width="100%"/>
 		</s:FormItem>
-		<s:FormItem width="100%" label="{resourceManager.getString('resources','wishlistDescription')}">
-			<s:TextInput id="wishlistDescription" width="100%"/>
+		<s:FormItem width="100%" label="{resourceManager.getString('resources','itemCost')}">
+			<s:TextInput id="wishitemCost" width="100%"/>
 		</s:FormItem>
-		<s:HGroup width="100%">
-			<s:FormItem width="100%" label="{resourceManager.getString('resources','saving')}">
-				<s:HGroup verticalAlign="middle">
-					<s:Label text="{currencySymbol}"/>
-					<s:TextInput id="wishlistSaving" width="100%"/>
-				</s:HGroup>
-			</s:FormItem>
-			<s:FormItem label="{resourceManager.getString('resources','buyDate')}">
-				<mx:DateField id="wishlistBuyDate" width="100%"
-							  dayNames="{dayNames}"
-							  monthNames="{monthNames}"
-							  firstDayOfWeek="{firstDayOfWeek}"/>
-			</s:FormItem>
-		</s:HGroup>
 	</s:Form>
 	<s:controlBarContent>
 		<mx:Button id="btnCancel" label="{resourceManager.getString('resources','cancel')}"

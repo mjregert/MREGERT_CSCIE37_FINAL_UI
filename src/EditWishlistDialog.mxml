@@ -9,6 +9,8 @@
 		<![CDATA[
 			import flash.globalization.DateTimeNameStyle;
 			
+			import models.Wishlist;
+			
 			import mx.core.FlexGlobals;
 			import mx.events.CloseEvent;
 			import mx.events.FlexEvent;
@@ -16,6 +18,9 @@
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
 
+			[Bindable]
+			public var oldWishlist: Wishlist;
+			
 			[Bindable]
 			protected var locale: String;
 			
@@ -33,7 +38,8 @@
 			
 			protected function btnSave_clickHandler(event:MouseEvent):void
 			{
-				saveWishlist.send();
+				editWishlist.url="http://localhost/wishlists/" + oldWishlist.id;
+				editWishlist.send();
 			}
 			
 			protected function btnCancel_clickHandler(event:MouseEvent):void
@@ -46,13 +52,13 @@
 				PopUpManager.removePopUp(this);
 			}
 			
-			protected function saveWishlist_resultHandler(event:ResultEvent):void
+			protected function editWishlist_resultHandler(event:ResultEvent):void
 			{
 				FlexGlobals.topLevelApplication.getAllWishlists.send();
 				PopUpManager.removePopUp(this);
 			}
 			
-			protected function saveWishlist_faultHandler(event:FaultEvent):void
+			protected function editWishlist_faultHandler(event:FaultEvent):void
 			{
 				trace("here");				
 			}
@@ -69,10 +75,10 @@
 		]]>
 	</fx:Script>
 	<fx:Declarations>
-		<s:HTTPService id="saveWishlist" url="http://localhost/wishlists"
+		<s:HTTPService id="editWishlist"
 					   useProxy="false" method="POST" resultFormat="e4x"
-					   result="saveWishlist_resultHandler(event)"
-					   fault="saveWishlist_faultHandler(event)">
+					   result="editWishlist_resultHandler(event)"
+					   fault="editWishlist_faultHandler(event)">
 			<mx:request xmlns="">
 				<locale>{locale}</locale>
 				<name>{wishlistName.text}</name> 
@@ -90,23 +96,24 @@
 		</s:layout>  
 		<s:FormHeading label="{resourceManager.getString('resources', 'newWishlist')}"/>
 		<s:FormItem width="100%" label="{resourceManager.getString('resources','wishlistName')}">
-			<s:TextInput id="wishlistName" width="100%"/>
+			<s:TextInput id="wishlistName" width="100%" text="{oldWishlist.name}"/>
 		</s:FormItem>
 		<s:FormItem width="100%" label="{resourceManager.getString('resources','wishlistDescription')}">
-			<s:TextInput id="wishlistDescription" width="100%"/>
+			<s:TextInput id="wishlistDescription" width="100%" text="{oldWishlist.description}"/>
 		</s:FormItem>
 		<s:HGroup width="100%">
 			<s:FormItem width="100%" label="{resourceManager.getString('resources','saving')}">
 				<s:HGroup verticalAlign="middle">
 					<s:Label text="{currencySymbol}"/>
-					<s:TextInput id="wishlistSaving" width="100%"/>
+					<s:TextInput id="wishlistSaving" width="100%" text="{oldWishlist.saving}"/>
 				</s:HGroup>
 			</s:FormItem>
 			<s:FormItem label="{resourceManager.getString('resources','buyDate')}">
 				<mx:DateField id="wishlistBuyDate" width="100%"
 							  dayNames="{dayNames}"
 							  monthNames="{monthNames}"
-							  firstDayOfWeek="{firstDayOfWeek}"/>
+							  firstDayOfWeek="{firstDayOfWeek}"
+							  selectedDate="{oldWishlist.buyDate}"/>
 			</s:FormItem>
 		</s:HGroup>
 	</s:Form>
