@@ -2,7 +2,7 @@
 <s:Application xmlns:fx="http://ns.adobe.com/mxml/2009"
 			   xmlns:s="library://ns.adobe.com/flex/spark"
 			   xmlns:mx="library://ns.adobe.com/flex/mx"
-			   minWidth="955" minHeight="600" backgroundColor="#FFFFFF"
+			   minWidth="955" minHeight="600" backgroundColor="#EDEDED"
 			   creationComplete="application_creationCompleteHandler(event)">
 	<fx:Metadata>
 		// Strings resource file
@@ -28,7 +28,7 @@
 			for Windows, or the "System Preferences" in Mac OS X.
 			*/
 			[Bindable]
-			protected var preferredLocale: String = "de_DE";//LocaleID.DEFAULT;
+			protected var preferredLocale: String = "en_UK";//LocaleID.DEFAULT;
 			
 			/* Create a locale ID class.
 			
@@ -132,22 +132,28 @@
 			<s:VGroup width="600" horizontalAlign="center">
 				<s:HGroup width="100%" height="200" paddingBottom="20" paddingLeft="20" paddingRight="20"
 						  paddingTop="20" verticalAlign="middle">
-					<s:Label color="#FFEE44" fontSize="60"
-							 text="{resourceManager.getString('resources', 'appTitle')}"/>
+					<s:Group>
+						<s:Label x="2" y="2" color="#000000" fontFamily="Georgia" fontSize="60"
+								 text="{resourceManager.getString('resources', 'appTitle')}"/>
+						<s:Label color="#E4B204" fontFamily="Georgia" fontSize="60"
+								 text="{resourceManager.getString('resources', 'appTitle')}"/>
+					</s:Group>
 					<s:Spacer width="50"/>
 					<s:Image width="139" height="150" source="resources/images/coins.png"/>
 				</s:HGroup>
 				
 				<s:HGroup width="100%" paddingBottom="20" paddingLeft="20" paddingRight="20" paddingTop="20"
 						  verticalAlign="middle">
-					<s:Label fontSize="36"
-							 text="{resourceManager.getString('resources', 'wishlistTitle')}"/>
-					<s:Spacer width="50"/>
+					<s:Group>
+						<s:Label fontSize="36" x="2" y="2" text="{resourceManager.getString('resources', 'wishlistTitle')}"/>
+						<s:Label fontSize="36" text="{resourceManager.getString('resources', 'wishlistTitle')}" color="#E4B204"/>
+					</s:Group>
+					<s:Spacer width="100%"/>
 					<s:Button id="btnNewWishlist" label="NEW" click="btnNewWishlist_clickHandler(event)"/>
 				</s:HGroup>
 				
 				
-				<s:VGroup id="wishlistArea" width="100%">
+				<s:VGroup id="wishlistArea" width="100%" gap="3" horizontalAlign="center">
 				</s:VGroup>
 			</s:VGroup>
 		</s:Group>

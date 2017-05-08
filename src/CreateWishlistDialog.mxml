@@ -48,6 +48,7 @@
 			
 			protected function saveWishlist_resultHandler(event:ResultEvent):void
 			{
+				FlexGlobals.topLevelApplication.getAllWishlists.send();
 				PopUpManager.removePopUp(this);
 			}
 			
