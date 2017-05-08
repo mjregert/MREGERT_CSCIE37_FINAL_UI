@@ -4,9 +4,6 @@
 			   xmlns:mx="library://ns.adobe.com/flex/mx"
 			   minWidth="955" minHeight="600" backgroundColor="#FFFFFF"
 			   creationComplete="application_creationCompleteHandler(event)">
-	<s:layout>
-		<s:VerticalLayout horizontalAlign="center"/>
-	</s:layout>
 	<fx:Metadata>
 		// Strings resource file
 		[ResourceBundle("resources")]
@@ -23,6 +20,7 @@
 			
 			import mx.collections.ArrayCollection;
 			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
 			
 			/* Initially set the preferred locale to use the user's default linguistic preferences, as specified in the
@@ -30,7 +28,7 @@
 			for Windows, or the "System Preferences" in Mac OS X.
 			*/
 			[Bindable]
-			protected var preferredLocale: String = LocaleID.DEFAULT;
+			protected var preferredLocale: String = "de_DE";//LocaleID.DEFAULT;
 			
 			/* Create a locale ID class.
 			
@@ -38,7 +36,7 @@
 			names that use the syntax defined by the Unicode Technical Standard #35 (http://unicode.org/reports/tr35/).
 			*/
 			[Bindable]
-			protected var localeId:LocaleID;
+			public var localeId:LocaleID;
 			
 			/* The DateTimeFormatter class provides locale-sensitive formatting for Date objects and access to localized
 			date field names. The methods of this class use functions and settings provided by the operating system.
@@ -61,7 +59,7 @@
 			formatting results even when using the same locale ID.
 			*/
 			[Bindable]
-			protected var dateTimeFormatter: DateTimeFormatter;
+			public var dateTimeFormatter: DateTimeFormatter;
 			
 			/* The CurrencyFormatter class provides locale-sensitive formatting and parsing of currency values.
 			
@@ -80,7 +78,7 @@
 			results, even when using the same locale ID.
 			*/
 			[Bindable]
-			protected var currencyFormatter: CurrencyFormatter;
+			public var currencyFormatter: CurrencyFormatter;
 			
 			
 			//-----------------------------------------------------------------
@@ -111,6 +109,13 @@
 				}			
 			}
 			
+			protected function btnNewWishlist_clickHandler(event:MouseEvent):void
+			{
+				var createWishlistDialog: CreateWishlistDialog = new CreateWishlistDialog();
+				PopUpManager.addPopUp(createWishlistDialog, this, true);
+				PopUpManager.centerPopUp(createWishlistDialog);
+			}
+			
 		]]>
 	</fx:Script>
 	<fx:Declarations>
@@ -119,25 +124,32 @@
 					   result="getAllWishlists_resultHandler(event)">
 		</s:HTTPService> 
 	</fx:Declarations>
-	<s:VGroup width="600" horizontalAlign="center">
-		<s:HGroup width="100%" height="200" paddingBottom="20" paddingLeft="20" paddingRight="20"
-				  paddingTop="20" verticalAlign="middle">
-			<s:Label color="#FFEE44" fontSize="60"
-					 text="{resourceManager.getString('resources', 'appTitle')}"/>
-			<s:Spacer width="50"/>
-			<s:Image width="139" height="150" source="resources/images/coins.png"/>
-		</s:HGroup>
-		
-		<s:HGroup width="100%" paddingBottom="20" paddingLeft="20" paddingRight="20" paddingTop="20"
-				  verticalAlign="middle">
-			<s:Label fontSize="36"
-					 text="{resourceManager.getString('resources', 'wishlistTitle')}"/>
-			<s:Spacer width="50"/>
-			<s:Button id="btnNewWishlist" label="NEW"/>
-		</s:HGroup>
-		
-		
-		<s:VGroup id="wishlistArea" width="100%">
-		</s:VGroup>
-	</s:VGroup>
+	<s:Scroller left="1" right="1" top="1" bottom="1">
+		<s:Group width="100%">
+			<s:layout>
+				<s:VerticalLayout horizontalAlign="center"/>
+			</s:layout>
+			<s:VGroup width="600" horizontalAlign="center">
+				<s:HGroup width="100%" height="200" paddingBottom="20" paddingLeft="20" paddingRight="20"
+						  paddingTop="20" verticalAlign="middle">
+					<s:Label color="#FFEE44" fontSize="60"
+							 text="{resourceManager.getString('resources', 'appTitle')}"/>
+					<s:Spacer width="50"/>
+					<s:Image width="139" height="150" source="resources/images/coins.png"/>
+				</s:HGroup>
+				
+				<s:HGroup width="100%" paddingBottom="20" paddingLeft="20" paddingRight="20" paddingTop="20"
+						  verticalAlign="middle">
+					<s:Label fontSize="36"
+							 text="{resourceManager.getString('resources', 'wishlistTitle')}"/>
+					<s:Spacer width="50"/>
+					<s:Button id="btnNewWishlist" label="NEW" click="btnNewWishlist_clickHandler(event)"/>
+				</s:HGroup>
+				
+				
+				<s:VGroup id="wishlistArea" width="100%">
+				</s:VGroup>
+			</s:VGroup>
+		</s:Group>
+	</s:Scroller>
 </s:Application>

@@ -38,5 +38,14 @@ package
 			var seconds: Number = dateObj.seconds;
 			return new String(year + "-" + month + "-" + date);
 		}
+		
+		static public function vectorToArray(v: Object): Array {
+			var ret: Array = new Array();
+			for each(var str: String in v) {
+				ret.push(str);
+			}
+			return ret;
+		}
+
 }
 }

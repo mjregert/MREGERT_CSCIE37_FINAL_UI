@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 title="{resourceManager.getString('resources', 'newWishlistDialog')}"
+		 close="titlewindow_closeHandler(event)"
+		 creationComplete="titlewindow_creationCompleteHandler(event)">
+	<fx:Script>
+		<![CDATA[
+			import flash.globalization.DateTimeNameStyle;
+			
+			import mx.core.FlexGlobals;
+			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+
+			[Bindable]
+			protected var locale: String;
+			
+			[Bindable]
+			protected var dayNames: Array;
+			
+			[Bindable]
+			protected var monthNames: Array;
+			
+			[Bindable]
+			protected var firstDayOfWeek: int;
+			
+			[Bindable]
+			protected var currencySymbol: String;
+			
+			protected function btnSave_clickHandler(event:MouseEvent):void
+			{
+				saveWishlist.send();
+			}
+			
+			protected function btnCancel_clickHandler(event:MouseEvent):void
+			{
+				PopUpManager.removePopUp(this);
+			}
+			
+			protected function titlewindow_closeHandler(event:CloseEvent):void
+			{
+				PopUpManager.removePopUp(this);
+			}
+			
+			protected function saveWishlist_resultHandler(event:ResultEvent):void
+			{
+				PopUpManager.removePopUp(this);
+			}
+			
+			protected function saveWishlist_faultHandler(event:FaultEvent):void
+			{
+				trace("here");				
+			}
+			
+			protected function titlewindow_creationCompleteHandler(event:FlexEvent):void
+			{
+				locale = FlexGlobals.topLevelApplication.localeId.name;
+				dayNames = Utilities.vectorToArray(FlexGlobals.topLevelApplication.dateTimeFormatter.getWeekdayNames(DateTimeNameStyle.LONG_ABBREVIATION));
+				monthNames = Utilities.vectorToArray(FlexGlobals.topLevelApplication.dateTimeFormatter.getMonthNames(DateTimeNameStyle.LONG_ABBREVIATION));
+				firstDayOfWeek = FlexGlobals.topLevelApplication.dateTimeFormatter.getFirstWeekday();
+				currencySymbol = FlexGlobals.topLevelApplication.currencyFormatter.currencySymbol;
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<s:HTTPService id="saveWishlist" url="http://localhost/wishlists"
+					   useProxy="false" method="POST" resultFormat="e4x"
+					   result="saveWishlist_resultHandler(event)"
+					   fault="saveWishlist_faultHandler(event)">
+			<mx:request xmlns="">
+				<locale>{locale}</locale>
+				<name>{wishlistName.text}</name> 
+				<description>{wishlistDescription.text}</description>
+				<total>45678</total>
+				<saving>50</saving>
+				<buyDate>{Utilities.dateToString(new Date())}</buyDate>
+			</mx:request>         
+		</s:HTTPService> 
+	</fx:Declarations>
+	<s:Form id="form" width="600">
+		<!-- Reduce the gap between the form items -->
+		<s:layout>
+			<s:FormLayout gap="-5"/>
+		</s:layout>  
+		<s:FormHeading label="{resourceManager.getString('resources', 'newWishlist')}"/>
+		<s:FormItem width="100%" label="{resourceManager.getString('resources','wishlistName')}">
+			<s:TextInput id="wishlistName" width="100%"/>
+		</s:FormItem>
+		<s:FormItem width="100%" label="{resourceManager.getString('resources','wishlistDescription')}">
+			<s:TextInput id="wishlistDescription" width="100%"/>
+		</s:FormItem>
+		<s:HGroup width="100%">
+			<s:FormItem width="100%" label="{resourceManager.getString('resources','saving')}">
+				<s:HGroup verticalAlign="middle">
+					<s:Label text="{currencySymbol}"/>
+					<s:TextInput id="wishlistSaving" width="100%"/>
+				</s:HGroup>
+			</s:FormItem>
+			<s:FormItem label="{resourceManager.getString('resources','buyDate')}">
+				<mx:DateField id="buyDate" width="100%"
+							  dayNames="{dayNames}"
+							  monthNames="{monthNames}"
+							  firstDayOfWeek="{firstDayOfWeek}"/>
+			</s:FormItem>
+		</s:HGroup>
+	</s:Form>
+	<s:controlBarContent>
+		<mx:Button id="btnCancel" label="{resourceManager.getString('resources','cancel')}"
+				   click="btnCancel_clickHandler(event)"/>
+		<!-- Use Spacer to push save button to the right. -->
+		<mx:Spacer width="100%"/>
+		<mx:Button id="btnSave" label="{resourceManager.getString('resources','saveWishlist')}"
+				   click="btnSave_clickHandler(event)"/>
+	</s:controlBarContent>
+</s:TitleWindow>

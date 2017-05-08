@@ -32,5 +32,7 @@
 			<s:Spacer width="100%"/>
 			<s:Label id="wishlistTotal" fontSize="20" text="{wishlist.total}"/>
 		</s:HGroup>
+		<mx:HRule width="100%"/>
+		<s:Label id="wishlistDescription" text="{wishlist.description}" width="100%"/>
 	</s:BorderContainer>
 </s:Group>
